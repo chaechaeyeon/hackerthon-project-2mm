@@ -31,3 +31,6 @@ class UserInfo(models.Model) :
     # phoneNumber 필드 : 모듈 사용함 
     # phoneNumber = UserInfo.phone.as_e164 로 값을 가져오면 되어요 
     phone = PhoneNumberField(verbose_name="전화번호", max_length=16, unique=True, null=False, blank=False)
+
+    def __str__(self):
+        return self.user.username
