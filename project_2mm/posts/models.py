@@ -14,12 +14,11 @@ class Post(models.Model) :
 
 # 앨범 데이터 저장 
 class Album(models.Model) :
-    # 나중에 로그인 구현되면 null 불가하도록 수정 
+    # 수정 ) 나중에 로그인 구현되면 null 불가하도록 
     writer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     image = models.ImageField(verbose_name="이미지", upload_to='album_img')
     created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
-    # 업데이트 확인용 
-    test = models.TextField(verbose_name='확인', default='없음')
+    test = models.TextField(verbose_name="테스트용", default="기본값")
 # 사용자 그룹 관리 
 class Group(models.Model) :
     name = models.CharField(verbose_name="모임명", max_length=24)
