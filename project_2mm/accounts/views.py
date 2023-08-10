@@ -3,9 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework import viewsets, generics
 from rest_framework import status
+from rest_framework.authtoken.models import Token
+
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login , logout
+
+
 from .serializers import UsernameSerializer, PasswordSerializer
 from . import serializers
 from phonenumber_field.modelfields import PhoneNumber
@@ -29,17 +33,33 @@ class Loginview(APIView):
 
             if user is not None:
                 login(request, user)
-                return Response({'message': '로그인 성공했습니다.'}, status=status.HTTP_200_OK)
+                #토큰 생성 
+                token, created = Token.objects.get_or_create(user=user)
+                
+                # 디버그 확인용 : 로그인 유저 
+                if request.user.is_authenticated:
+                    print(request.user, "님이 로그인되었습니다:", token.key)
+                else:
+                    print("현재 로그인되어 있지 않습니다.")
+
+                return Response({ 'token': token.key}, status=status.HTTP_200_OK)
             else:
-                return Response({'error': '로그인에 실패했습니다. 다시 시도'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'error': '로그인실패! 다시 시도'}, status=status.HTTP_401_UNAUTHORIZED)
         except UserInfo.DoesNotExist:
-            return Response({'error': 'userinfo가 빈 경우'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'userinfo가 비어있음!'}, status=status.HTTP_404_NOT_FOUND)
  
 #로그아웃 
 class LogoutView(APIView):
     def post(self, request, *args, **kwargs):
+        user = request.user
         logout(request)
+        #디버그 확인 :로그아웃
+        if user.is_authenticated:
+            print(user,"님이 로그아웃:" )
+        else:
+            print("현재 로그인되어 있지 않습니다.")
         return Response({'message': '로그아웃'}, status=status.HTTP_200_OK)
+    
 #회원가입 절차 
 #STEP 1: username
 class UsernameView(APIView):
@@ -48,8 +68,7 @@ class UsernameView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             self.request.session['username'] = username
-            #디버그 확인
-            
+            #디버그 확인: 유저이름
             print("Debug :username:", serializer.validated_data.get('username'))
             print("Debug : Username Session:", self.request.session.get('username'))
             return Response({'next_url': 'phonenumber/'})
@@ -63,15 +82,12 @@ class PhoneNumberView(APIView):
 
         if not phone:
             return Response({'error': '전화번호를 입력해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
-
         # 세션에  저장
         self.request.session['phone'] = phone
         saved_phone = self.request.session.get('phone')
         
         print("Saved Phone Number in Session:", saved_phone)
         return Response({'next_url': 'password/'})
-
-
 #STEP3: password
 class PasswordView(APIView):
     def post(self, request, *args, **kwargs):
@@ -81,9 +97,7 @@ class PasswordView(APIView):
             phone = self.request.session.get('phone')  
 
             if not username or not phone:
-
-                return Response({'error': '정보 누락'}, status=status.HTTP_400_BAD_REQUEST)
-
+                return Response(serializer.data,{'error': '정보 누락'}, status=status.HTTP_400_BAD_REQUEST)
             password = serializer.validated_data.get('password')
             try:
                 # 유저 생성 및 저장
@@ -91,9 +105,8 @@ class PasswordView(APIView):
                 user_info = UserInfo.objects.create(user=user, phone=phone)
             except Exception as e:
                 return Response({'error': '회원 가입 오류.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response({'message': '회원 가입 성공'})
+            return Response(serializer.data,{'message': '회원 가입 성공'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # group 개별 코드 발급 위한 viewset

@@ -44,8 +44,7 @@ INSTALLED_APPS = [
  
     'rest_framework',
     'phonenumber_field',
-    
-
+    'rest_framework.authtoken',
 
     # created apps
     'posts',
@@ -53,25 +52,32 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
+    'django.middleware.common.CommonMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', #
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', #
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
 ]
 
-#로그인 로그아웃에 필요한 토큰 설정
+#
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+         'rest_framework.authentication.TokenAuthentication',
+         'rest_framework.authentication.SessionAuthentication',
     ],
 }
 
-#세션
+#세션관련 설정
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_COOKIE_NAME= '2mm_shared_session' #공유 세션
+# SESSION_COOKIE_SECURE = False #개발환경 / 배포시 True로 변경 
+# SESSION_COOKIE_HTTPONLY = True
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_COOKIE_AGE = 60 * 60  
 
 ROOT_URLCONF = 'project_2mm.urls'
 
