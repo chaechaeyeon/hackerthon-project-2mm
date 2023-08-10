@@ -38,7 +38,7 @@ class UserInfo(models.Model) :
     profile = models.ImageField(verbose_name="프로필이미지", upload_to="user_profile", null=True, blank=True)
     # phoneNumber 필드 : 모듈 사용함 
     # phoneNumber = UserInfo.phone.as_e164 로 값을 가져오면 되어요 
-    phone = PhoneNumberField(verbose_name="전화번호", max_length=16, unique=True, null=False, blank=False)
+    phone = PhoneNumberField(verbose_name="전화번호", max_length=15, unique=True, null=False, blank=False)
 
     def __str__(self):
-        return self.user.username
+        return str(self.id)
