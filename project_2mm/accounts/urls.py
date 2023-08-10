@@ -20,7 +20,6 @@ urlpatterns = [
     path('group/', views.GroupListCreateView.as_view(), name='group-list-create'),
     path('group/<uuid:code>/', views.GroupDetailView.as_view(), name='group-detail'),
     #path('', include(group_router.urls)),
-   
     #path('groups/', views.GroupListAPIView.as_view()),
     #path('groups/<uuid:group_pk>/', views.GroupDetailAPIView.as_view()),
     

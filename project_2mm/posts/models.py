@@ -14,9 +14,12 @@ class Post(models.Model) :
 
 # 앨범 데이터 저장 
 class Album(models.Model) :
+    # 나중에 로그인 구현되면 null 불가하도록 수정 
+    writer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     image = models.ImageField(verbose_name="이미지", upload_to='album_img')
     created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
-
+    # 업데이트 확인용 
+    test = models.TextField(verbose_name='확인', default='없음')
 # 사용자 그룹 관리 
 class Group(models.Model) :
     name = models.CharField(verbose_name="모임명", max_length=24)
@@ -39,6 +42,5 @@ class UserInfo(models.Model) :
     # phoneNumber 필드 : 모듈 사용함 
     # phoneNumber = UserInfo.phone.as_e164 로 값을 가져오면 되어요 
     phone = PhoneNumberField(verbose_name="전화번호", max_length=15, unique=True, null=False, blank=False)
-
     def __str__(self):
         return str(self.id)
