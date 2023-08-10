@@ -1,8 +1,23 @@
-from django.urls import path
-from .views import UsernameView, PhoneNumberView, PasswordView
+from django.urls import path, include
+from rest_framework.routers import SimpleRouter, DefaultRouter
+from . import views
 
+# group_router = DefaultRouter()
+# group_router.register('groups', views.GroupListAPIView, basename='groups')
+
+# groupDetail_router = SimpleRouter()
+# groupDetail_router.register('group_detail', views.GroupDetailViewSet, basename='group_detail')
 urlpatterns = [
-    path('username/', UsernameView.as_view(), name='username-view'),
-    path('phonenumber/', PhoneNumberView.as_view(), name='phone-number-view'),
-    path('password/', PasswordView.as_view(), name='password-view'),
+    path('group/', views.GroupListCreateView.as_view(), name='group-list-create'),
+    path('group/<uuid:code>/', views.GroupDetailView.as_view(), name='group-detail'),
+    #path('', include(group_router.urls)),
+    path('username/', views.UsernameView.as_view(), name='username-view'),
+    path('phonenumber/', views.PhoneNumberView.as_view(), name='phone-number-view'),
+    path('password/', views.PasswordView.as_view(), name='password-view'),
+    #path('groups/', views.GroupListAPIView.as_view()),
+    #path('groups/<uuid:group_pk>/', views.GroupDetailAPIView.as_view()),
+    
+    #path('groups/<uuid:gruop_pk>/', include(groupDetail_router.urls)),
+    # path('groups/<uuid:group_code>/name/', views.GroupDataViewSet.as_view({'post': 'create_name'}), name='group-name'),
+    # path('groups/<uuid:group_code>/profile/', views.GroupDataViewSet.as_view({'post': 'create_profile'}), name='group-profile'),
 ]
