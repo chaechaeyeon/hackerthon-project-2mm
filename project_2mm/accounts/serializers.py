@@ -6,8 +6,8 @@ from posts import models
 class UsernameSerializer(serializers.Serializer):
     username = serializers.CharField()
 
-class PhoneNumberSerializer(serializers.Serializer):
-    phone = PhoneNumberField()
+# class PhoneNumberSerializer(serializers.Serializer):
+#     phone = PhoneNumberField()
 
 class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
