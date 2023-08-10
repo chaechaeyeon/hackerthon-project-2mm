@@ -4,19 +4,6 @@ from phonenumber_field.modelfields import PhoneNumberField
 import uuid
 User = get_user_model()
 
-# 게시글 데이터 저장 
-class Post(models.Model) :
-    content = models.TextField()
-    image = models.ImageField(verbose_name="이미지", blank=True, null=True, upload_to='posts_img')
-    created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
-    #writer =
-    #like_count = 
-
-# 앨범 데이터 저장 
-class Album(models.Model) :
-    image = models.ImageField(verbose_name="이미지", upload_to='album_img')
-    created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
-
 # 사용자 그룹 관리 
 class Group(models.Model) :
     name = models.CharField(verbose_name="모임명", max_length=24)
@@ -42,3 +29,22 @@ class UserInfo(models.Model) :
 
     def __str__(self):
         return str(self.id)
+    
+# 게시글 데이터 저장 
+class Post(models.Model) :
+    # group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    content = models.TextField()
+    image = models.ImageField(verbose_name="이미지", blank=True, null=True, upload_to='posts_img')
+    created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
+    writer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writer', null=True) 
+    #userprofile =
+    #like_count = 
+
+#댓글 데이터 
+
+
+
+# 앨범 데이터 저장 
+class Album(models.Model) :
+    image = models.ImageField(verbose_name="이미지", upload_to='album_img')
+    created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
