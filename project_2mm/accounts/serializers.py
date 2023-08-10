@@ -14,18 +14,11 @@ class PasswordSerializer(serializers.Serializer):
 
 # 모임코드생성 
 class GroupSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
     class Meta:
         model = models.Group
-        # fields = ['name', 'profile', 'info']
-        fields = '__all__'
+        fields = ['name','info', 'profile', 'username', 'code']
     def update(self, instance, validated_data):
         # 코드 값을 무시하고 업데이트할 필드만 validated_data에서 추출합니다.
         validated_data.pop('code', None)
         return super().update(instance, validated_data)
-
-
-# class GroupDetailSerializer(serializers.ModelSerializer) :
-#     #code = serializers.ReadOnlyField(source='group.code')
-#     class Meta :
-#         model = models.Group
-#         fields = '__all__'

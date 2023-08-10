@@ -4,5 +4,9 @@ from . import models
 
 admin.site.register(models.UserInfo)
 admin.site.register(models.Group)
+
 admin.site.register(models.Post)
 #admin.site.register(Comment)
+
+admin.site.register(models.Album)
+

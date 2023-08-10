@@ -1,11 +1,16 @@
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import viewsets
 from django.shortcuts import render
+from rest_framework import views
+from rest_framework.response import Response
+from rest_framework import status,viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import  IsAuthenticated
 from .models import Post
 from .serializers import PostSerializer
 
+from . import models
+from . import serializers
+
+# Create your views here.
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -22,3 +27,22 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             print("이거 뜨면 세션값 못 받고 있는거임 수정해야함.ㅜㅜ")
             return Response(serializer.data,{'error'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+# 사진 리스트 
+class AlbumAPIView(views.APIView):
+    def get(self, request):
+        serializer = serializers.AlbumSerializer(models.Album.objects.all(), many=True)
+        return Response(serializer.data)
+    def post(self, request):
+        serializer = serializers.AlbumSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400) 
+    # 로그인 완료 되면 확인하기 
+    # def delete(self, request, pk):
+    #     album = models.Album.objects.get(pk=pk)
+    #     if album is not None :
+    #         if album.writer == request.user :
+    #             album.delete()
+

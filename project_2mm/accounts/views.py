@@ -88,6 +88,7 @@ class PhoneNumberView(APIView):
         
         print("Saved Phone Number in Session:", saved_phone)
         return Response({'next_url': 'password/'})
+
 #STEP3: password
 class PasswordView(APIView):
     def post(self, request, *args, **kwargs):
@@ -97,7 +98,9 @@ class PasswordView(APIView):
             phone = self.request.session.get('phone')  
 
             if not username or not phone:
-                return Response(serializer.data,{'error': '정보 누락'}, status=status.HTTP_400_BAD_REQUEST)
+
+                return Response({'error': '정보 누락'}, status=status.HTTP_400_BAD_REQUEST)
+
             password = serializer.validated_data.get('password')
             try:
                 # 유저 생성 및 저장
@@ -105,9 +108,8 @@ class PasswordView(APIView):
                 user_info = UserInfo.objects.create(user=user, phone=phone)
             except Exception as e:
                 return Response({'error': '회원 가입 오류.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response(serializer.data,{'message': '회원 가입 성공'})
+            return Response({'message': '회원 가입 성공'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # group 개별 코드 발급 위한 viewset
 class GroupListCreateView(generics.ListCreateAPIView):
