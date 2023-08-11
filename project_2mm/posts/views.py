@@ -41,8 +41,8 @@ class CommentViewSet(ModelViewSet):
         return self.queryset.filter(post=id)
     
     #comment_create
-    def post(self,request):
-        if request.user_is_authenticated: 
+    def create(self,request, *args, **kwargs):
+        if request.user.is_authenticated: 
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             

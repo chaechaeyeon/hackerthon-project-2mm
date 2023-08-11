@@ -61,6 +61,20 @@ class LogoutView(APIView):
         return Response({'message': '로그아웃'}, status=status.HTTP_200_OK)
     
 #회원가입 절차 
+# class SingupView(APIView):
+#     def patch(self, request, code, format=None):
+#         try:
+#             queryset = models.UserInfo.objects.get(code=code)
+#             serializer = serializers.UsersSerializer(queryset, data=request.data, partial=True)
+#             if serializer.is_valid():
+#                 serializer.save()
+#             else:
+#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         except models.UserInfo.DoesNotExist:
+#             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)     
+        
 #STEP 1: username
 class UsernameView(APIView):
     def post(self, request, *args, **kwargs):

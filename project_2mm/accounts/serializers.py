@@ -7,10 +7,16 @@ class UsernameSerializer(serializers.Serializer):
     username = serializers.CharField()
 
 # class PhoneNumberSerializer(serializers.Serializer):
-#     phone = PhoneNumberField()
+#     phone = PhoneNumberField
 
 class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
+
+class UsersSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+    phone = PhoneNumberField
+
 
 # 모임코드생성 
 class GroupSerializer(serializers.ModelSerializer):
