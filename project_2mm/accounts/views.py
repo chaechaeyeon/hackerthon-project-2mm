@@ -72,7 +72,9 @@ class UsernameView(APIView):
             print("Debug :username:", serializer.validated_data.get('username'))
             print("Debug : Username Session:", self.request.session.get('username'))
             return Response({'next_url': 'phonenumber/'})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else: 
+            return Response({'넘어가는 거 막기..'},status=status.HTPP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #STEP2 : phonenumber
 class PhoneNumberView(APIView):
@@ -88,6 +90,7 @@ class PhoneNumberView(APIView):
         
         print("Saved Phone Number in Session:", saved_phone)
         return Response({'next_url': 'password/'})
+    
 
 #STEP3: password
 class PasswordView(APIView):

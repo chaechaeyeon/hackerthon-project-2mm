@@ -12,10 +12,21 @@ class Post(models.Model) :
     created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
     writer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writer', null=True) 
     #userprofile =
-    #like_count = 
+    # like_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return str(self.id)
+    
 
 #댓글 데이터 
-
+class Comment(models.Model):
+    comment=models.CharField(max_length=128)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
+    writer = models.ForeignKey(User,on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return self.comment
+    
 # 앨범 데이터 저장 
 class Album(models.Model) :
     image = models.ImageField(verbose_name="이미지", upload_to='album_img')
@@ -28,6 +39,7 @@ class Group(models.Model) :
     info = models.CharField(verbose_name="모임소개글", max_length=128, null=True, blank=True)
     code = models.UUIDField(primary_key=True, verbose_name="모임초대코드", default=uuid.uuid4, unique=True)
     profile = models.ImageField(verbose_name="모임이미지", upload_to='group_profile', null=True)
+    
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = uuid.uuid4()

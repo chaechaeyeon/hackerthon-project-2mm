@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'phonenumber_field',
     'rest_framework.authtoken',
+    'corsheaders',
 
     # created apps
     'posts',
@@ -65,11 +66,30 @@ MIDDLEWARE = [
 
 #
 REST_FRAMEWORK = {
+    # CamelCaseJSON 관련 설정
+    'DEFAULT_RENDERER_CLASSES': (
+    'djangorestframework_camel_case.render.CamelCaseJSONRenderer', 
+    'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+    'djangorestframework_camel_case.parser.CamelCaseFormParser', 
+    'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+    'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': [
          'rest_framework.authentication.TokenAuthentication',
          'rest_framework.authentication.SessionAuthentication',
     ],
 }
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_METHODS = [
+'DELETE',
+'GET',
+'OPTIONS',
+'PATCH',
+'POST',
+'PUT',
+]
 
 #세션관련 설정
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
