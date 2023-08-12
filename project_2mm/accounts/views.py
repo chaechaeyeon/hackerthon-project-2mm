@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login , logout
 
 
-from .serializers import UsernameSerializer, PasswordSerializer
+from .serializers import UsernameSerializer
 from . import serializers
 from phonenumber_field.modelfields import PhoneNumber
 from posts.models import UserInfo
@@ -47,7 +47,7 @@ class Loginview(APIView):
                 return Response({'error': '로그인실패! 다시 시도'}, status=status.HTTP_401_UNAUTHORIZED)
         except UserInfo.DoesNotExist:
             return Response({'error': 'userinfo가 비어있음!'}, status=status.HTTP_404_NOT_FOUND)
- 
+
 #로그아웃 
 class LogoutView(APIView):
     def post(self, request, *args, **kwargs):
@@ -59,74 +59,75 @@ class LogoutView(APIView):
         else:
             print("현재 로그인되어 있지 않습니다.")
         return Response({'message': '로그아웃'}, status=status.HTTP_200_OK)
+
+#회원가입
+class SingupView(APIView):
+    def get(self, request):
+        queryset = models.User.objects.all()
+        serializer = serializers.UsersSerializer(queryset, many=True)  # queryset은 여러 개의 유저를 포함할 수 있으므로 many=True 옵션 사용
+        return Response(serializer.data)    
     
-#회원가입 절차 
-# class SingupView(APIView):
-#     def patch(self, request, code, format=None):
-#         try:
-#             queryset = models.UserInfo.objects.get(code=code)
-#             serializer = serializers.UsersSerializer(queryset, data=request.data, partial=True)
-#             if serializer.is_valid():
-#                 serializer.save()
-#             else:
-#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         except models.UserInfo.DoesNotExist:
-#             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)     
-        
-#STEP 1: username
-class UsernameView(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request) :
+        # 여기서 받은 사용자 이름으로 일단 create user 하고 나머지 정보는 patch로 수정하는 식으로 
         serializer = UsernameSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
-            self.request.session['username'] = username
-            #디버그 확인: 유저이름
-            print("Debug :username:", serializer.validated_data.get('username'))
-            print("Debug : Username Session:", self.request.session.get('username'))
-            return Response({'next_url': 'phonenumber/'})
+            #self.request.session['username'] = username
+            user = User.objects.create_user(username=username)
+            user_info = UserInfo.objects.create(user=user)
+            if user is not None :
+                print("유저 생성됐다")
+            if user_info is not None :
+                print("유저 정보 생성됐다.")
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({ 'token': token.key}, status=status.HTTP_200_OK)
         else: 
-            return Response({'넘어가는 거 막기..'},status=status.HTPP_400_BAD_REQUEST)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#STEP2 : phonenumber
-class PhoneNumberView(APIView):
-    def post(self, request, *args, **kwargs):
-        
-        phone = request.data.get('phone') 
-
-        if not phone:
-            return Response({'error': '전화번호를 입력해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
-        # 세션에  저장
-        self.request.session['phone'] = phone
-        saved_phone = self.request.session.get('phone')
-        
-        print("Saved Phone Number in Session:", saved_phone)
-        return Response({'next_url': 'password/'})
+            return Response({'넘어가는 거 막기..'}, status=status.HTTP_400_BAD_REQUEST)
     
+    def patch(self, request, format=None):
+        try:
+            queryset = models.UserInfo.objects.get(user=request.user)
+            serializer = serializers.UsersSerializer(queryset, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except models.User.DoesNotExist:
+            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # 성주
+        # try:
+        #     queryset = models.UserInfo.objects.get(user=request.user)
+        #     serializer = serializers.UsersSerializer(queryset, data=request.data, partial=True)
+        #     if serializer.is_valid():
+        #         serializer.save()
+        #         return Response(serializer.data, status=status.HTTP_200_OK)
+        #     else:
+        #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # except models.UserInfo.DoesNotExist:
+        #     return Response({'error': 'User info not found'}, status=status.HTTP_404_NOT_FOUND)
 
-#STEP3: password
-class PasswordView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = PasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            username = self.request.session.get('username')
-            phone = self.request.session.get('phone')  
-
-            if not username or not phone:
-
-                return Response({'error': '정보 누락'}, status=status.HTTP_400_BAD_REQUEST)
-
-            password = serializer.validated_data.get('password')
-            try:
-                # 유저 생성 및 저장
-                user = User.objects.create_user(username=username, password=password)
-                user_info = UserInfo.objects.create(user=user, phone=phone)
-            except Exception as e:
-                return Response({'error': '회원 가입 오류.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response({'message': '회원 가입 성공'})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def patch(self, request, format=None):
+    #     try:
+    #         queryset = models.UserInfo.objects.get(user=request.user)
+    #         serializer = serializers.UsersSerializer(queryset, data=request.data, partial=True)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #         else:
+    #             print('뭐가 안되고 있음')
+    #     except models.UserInfo.DoesNotExist:
+    #         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+        # except Exception as e:
+        #     return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)     
+        # try:
+        #         # 유저 생성 및 저장
+        #         user = User.objects.create_user(username=username, password=password)
+        #         user_info = UserInfo.objects.create(user=user, phone=phone)
+        #     except Exception as e:
+        #         return Response({'error': '회원 가입 오류.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        #     return Response({'message': '회원 가입 성공'})
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # group 개별 코드 발급 위한 viewset
 class GroupListCreateView(generics.ListCreateAPIView):
